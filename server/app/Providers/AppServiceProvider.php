@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,4 +22,9 @@ class AppServiceProvider extends ServiceProvider
     {
         //
     }
+
+    // To route api request
+
+
+
 }
