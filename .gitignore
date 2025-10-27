@@ -1,0 +1,102 @@
+
+# ===================================================================
+# These files are often created by operating systems or text editors
+.DS_Store
+Thumbs.db
+.svn
+.gitattributes
+*.swp
+*.swo
+
+# ===================================================================
+# ## IDE & Editor Configs
+# ===================================================================
+# Ignore metadata from common code editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+nbproject/
+*.code-workspace
+
+# ===================================================================
+# ## Log & Cache Files
+# ===================================================================
+# Ignore common log, debug, and cache files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+.npm/
+
+# ===================================================================
+# ## Root Level Dependencies (if any)
+# ===================================================================
+# Ignore node_modules or .env if they exist in the root
+/node_modules/
+/.env
+/.env.local
+
+# ===================================================================
+# ## Frontend (Vue)
+# Path: /frontend/
+# ===================================================================
+# Dependencies
+frontend/node_modules/
+
+# Build outputs
+frontend/dist/
+frontend/build/
+frontend/out/
+
+# Local environment variables
+# These should NEVER be committed. Use .env.example instead.
+frontend/.env.local
+frontend/.env.*.local
+
+# Test & coverage reports
+frontend/coverage/
+frontend/.nyc_output/
+frontend/.vitest-cache/
+
+# =layout:check reports
+frontend/.eslintcache
+frontend/.stylelintcache
+
+# ===================================================================
+# ## Server (Laravel)
+# Path: /server/
+# ===================================================================
+# Dependencies
+server/vendor/
+server/node_modules/
+
+# Local environment variables
+# This file is critical and MUST NOT be committed.
+server/.env
+
+# Laravel Framework Files
+server/bootstrap/cache/*.php
+server/storage/framework/cache/
+server/storage/framework/sessions/
+server/storage/framework/views/
+server/storage/logs/
+server/storage/app/public/
+server/public/build/
+
+# Public storage directory (symlinked)
+server/public/storage
+
+# Public hot-reload file
+server/public/hot
+
+# Local development environments
+server/Homestead.json
+server/Homestead.yaml
+server/.vagrant/
+
+# Test cache
+server/.phpunit.result.cache
+
+# Sass cache
+.sass-cache/
