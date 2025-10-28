@@ -4,11 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+// We no longer need Hash
+// use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+// We don't strictly need this if we use the auth() helper
+// use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    /**
+     * Create a new AuthController instance.
+     * We apply the 'auth:api' middleware to all methods
+     * except for 'login' and 'register'.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+    }
+
     /**
      * Handle user registration and token creation.
      */
@@ -29,15 +44,17 @@ class AuthController extends Controller
             'password' => $request->password,
         ]);
 
-        // 3. Create a Sanctum token for the newly registered user
-        // We grant it the ability 'access:api'
-        $token = $user->createToken('auth_token', ['access:api'])->plainTextToken;
+        // 3. Log in the new user and get a JWT
+        $token = auth('api')->login($user);
 
+        // 4. Return the response with the token
         return response()->json([
             'message' => 'User successfully registered.',
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user,
+            // 'expires_in' is helpful for the frontend
+            'expires_in' => auth('api')->factory()->getTTL() * 60
         ], 201);
     }
 
@@ -47,33 +64,21 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         // 1. Validate incoming request data
-        $request->validate([
+        $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        // 2. Find the user by email
-        $user = User::where('email', $request->email)->first();
-
-        // 3. Check credentials
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            // Throw a validation exception for better error handling in the frontend
+        // 2. Attempt to authenticate using the 'api' guard and get a token
+        if (! $token = auth('api')->attempt($credentials)) {
+            // 3. If authentication fails, throw an exception
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials do not match our records.'],
             ]);
         }
 
-        // 4. If credentials are valid, delete old tokens (optional, but good for security)
-        $user->tokens()->delete();
-
-        // 5. Create a new token
-        $token = $user->createToken('auth_token', ['access:api'])->plainTextToken;
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user,
-        ]);
+        // 4. If credentials are valid, return the formatted token response
+        return $this->respondWithToken($token);
     }
 
     /**
@@ -81,11 +86,47 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        // Delete the token that was used to authenticate the current request
-        $request->user()->currentAccessToken()->delete();
+        // Invalidate the token (adds it to a blacklist)
+        auth('api')->logout();
 
         return response()->json([
             'message' => 'Successfully logged out.'
+        ]);
+    }
+
+    /**
+     * Get the authenticated User's profile.
+     */
+    public function me()
+    {
+        // Returns the currently authenticated user
+        return response()->json(auth('api')->user());
+    }
+
+    /**
+     * Refresh a token.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refresh()
+    {
+        // Refresh the token and return the new one
+        return $this->respondWithToken(auth('api')->refresh());
+    }
+
+    /**
+     * Helper function to format the token response.
+     *
+     * @param  string $token
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => auth('api')->user(),
+            'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
     }
 }
