@@ -11,7 +11,7 @@ use App\Http\Controllers\UserController;
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
-Route::get('/users', [UserController::class, 'index'])->name('users');
+Route::get('/users', [UserController::class, 'index'])->name('users')->middleware('throttle:3,1');
 
 // ----------------------------------------------------------------------
 // PROTECTED ROUTES (Token required - this is the middleware you asked for!)
