@@ -1,9 +1,28 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 
-Route::get('/ping', function () {
-    return response()->json(['message' => 'API is working']);
+// ----------------------------------------------------------------------
+// PUBLIC ROUTES (No token required)
+// ----------------------------------------------------------------------
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/users', [UserController::class, 'index'])->name('users');
+
+// ----------------------------------------------------------------------
+// PROTECTED ROUTES (Token required - this is the middleware you asked for!)
+// ----------------------------------------------------------------------
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Example protected route to get the user's details
+    // Route::get('/users', [UserController::class, 'index'])->name('users');
+
+    // Logout route (requires a valid token to delete itself)
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // ... any other routes that require authentication
 });
-
-Route::get('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users');
