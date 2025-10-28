@@ -17,12 +17,14 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "js-cookie": "^3.0.5",
     "pinia": "^3.0.3",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",
+    "@types/js-cookie": "^3.0.6",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^22.18.11",
     "@vitejs/plugin-vue": "^6.0.1",

@@ -57,6 +57,10 @@
 <script lang='ts'>
 import { ref, computed } from 'vue';
 import router from '@/router';
+import { useAuthStore } from '@/stores/auth';
+
+
+
 const API_URL = `${import.meta.env.VITE_API_URL}/login`;
 
 interface FormData {
@@ -73,6 +77,7 @@ interface ApiResponse {
 export default {
   // Composition API setup function
   setup() {
+    const authStore = useAuthStore();
     // NOTE: Use credentials that you have successfully registered via the /api/register endpoint.
     const formData = ref<FormData>({
       email: 'testuser@dev.com',
@@ -111,6 +116,7 @@ export default {
             isSuccess: true,
             data: data,
           };
+          authStore.login(data.user, data.token);
           router.push({ name: 'welcome' })
         } else {
           // Failure (HTTP 4xx or 5xx)
