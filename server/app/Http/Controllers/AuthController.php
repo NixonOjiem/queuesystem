@@ -9,8 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 // We don't strictly need this if we use the auth() helper
 // use Illuminate\Support\Facades\Auth;
+// We can import this to make the type-hint cleaner
+use Tymon\JWTAuth\JWTGuard;
+use Illuminate\Routing\Controller as BaseController; // <-- ADD THIS LINE
 
-class AuthController extends Controller
+class AuthController extends BaseController // <-- CHANGE THIS LINE
 {
     /**
      * Create a new AuthController instance.
@@ -45,7 +48,9 @@ class AuthController extends Controller
         ]);
 
         // 3. Log in the new user and get a JWT
-        $token = auth('api')->login($user);
+        /** @var \Tymon\JWTAuth\JWTGuard $guard */
+        $guard = auth('api');
+        $token = $guard->login($user);
 
         // 4. Return the response with the token
         return response()->json([
@@ -54,7 +59,7 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
             'user' => $user,
             // 'expires_in' is helpful for the frontend
-            'expires_in' => auth('api')->factory()->getTTL() * 60
+            'expires_in' => $guard->factory()->getTTL() * 60
         ], 201);
     }
 
@@ -87,7 +92,9 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         // Invalidate the token (adds it to a blacklist)
-        auth('api')->logout();
+        /** @var \Tymon\JWTAuth\JWTGuard $guard */
+        $guard = auth('api');
+        $guard->logout();
 
         return response()->json([
             'message' => 'Successfully logged out.'
@@ -110,8 +117,10 @@ class AuthController extends Controller
      */
     public function refresh()
     {
+        /** @var \Tymon\JWTAuth\JWTGuard $guard */
+        $guard = auth('api');
         // Refresh the token and return the new one
-        return $this->respondWithToken(auth('api')->refresh());
+        return $this->respondWithToken($guard->refresh());
     }
 
     /**
@@ -122,11 +131,16 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token)
     {
+        /** @var \Tymon\JWTAuth\JWTGuard $guard */
+        $guard = auth('api');
+
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => auth('api')->user(),
-            'expires_in' => auth('api')->factory()->getTTL() * 60
+            'user' => $guard->user(), // Use $guard here for consistency
+            'expires_in' => $guard->factory()->getTTL() * 60
         ]);
     }
 }
+
+
