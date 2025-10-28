@@ -9,8 +9,8 @@ use App\Http\Controllers\UserController;
 // PUBLIC ROUTES (No token required)
 // ----------------------------------------------------------------------
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/users', [UserController::class, 'index'])->name('users');
 
 // ----------------------------------------------------------------------
@@ -23,6 +23,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Logout route (requires a valid token to delete itself)
     Route::post('/logout', [AuthController::class, 'logout']);
-
-    // ... any other routes that require authentication
 });
